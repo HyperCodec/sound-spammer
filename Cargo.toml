@@ -1,0 +1,20 @@
+[package]
+name = "sound-spammer"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+fastrand = "2.3.0"
+walkdir = "2.5.0"
+
+[dependencies.bevy]
+version = "0.15.1"
+default-features = false
+features = [
+    "bevy_audio",
+    "bevy_asset",
+    "vorbis",
+    "mp3",
+    "wav",
+    "multi_threaded"
+]

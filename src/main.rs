@@ -15,7 +15,7 @@ fn main() {
         .init_resource::<AudioTimer>()
         .add_plugins(DefaultPlugins)
         .add_systems(Startup, read_audio)
-        .add_systems(Update, spawn_audios.after(read_audio))
+        .add_systems(Update, spawn_audios)
         .set_runner(run)
         .run();
 }

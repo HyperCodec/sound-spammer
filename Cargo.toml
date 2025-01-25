@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 fastrand = "2.3.0"
+phf = { version = "0.11.3", features = ["macros"] }
 walkdir = "2.5.0"
 
 [dependencies.bevy]

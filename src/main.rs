@@ -1,6 +1,7 @@
-use std::time::Duration;
+use std::{num::NonZero, time::Duration};
 
 use bevy::{audio::PlaybackMode, prelude::*};
+use phf::phf_set;
 use walkdir::WalkDir;
 
 #[derive(Resource, Default)]
@@ -46,8 +47,14 @@ fn read_audio(
             }
 
             let path = dir.path();
+            let Some(ext) = path.extension() else { continue };
+            let Some(ext) = ext.to_str() else { continue };
 
-            // TODO exclude non-audio files
+            if !(phf_set!{"ogg", "wav", "mp3"}.contains(&ext)) {
+                debug!("Skipping: {:?}", dir.file_name());
+                continue;
+            }
+
             let audio = asset_server.load(path.canonicalize().unwrap());
             commands.spawn(AudioProvider(audio));
             info!("Loaded file: {:?}", dir.file_name());
@@ -60,11 +67,16 @@ fn spawn_audios(
     time: Res<Time>,
     mut timer: ResMut<AudioTimer>,
     mut commands: Commands,
+    mut app_exit: EventWriter<AppExit>,
 ) {
     timer.0.tick(time.delta());
 
     if timer.0.finished() {
-        let provider = fastrand::choice(providers.iter()).unwrap();
+        let Some(provider) = fastrand::choice(providers.iter()) else {
+            error!("No valid audio files specified.");
+            app_exit.send(AppExit::Error(NonZero::new(1).unwrap()));
+            return;
+        };
 
         commands.spawn((
             AudioPlayer(provider.0.clone()),
